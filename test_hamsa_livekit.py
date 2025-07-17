@@ -1,12 +1,14 @@
-cat > test_hamsa_livekit.py <<'PY'
 import os, asyncio, wave, numpy as np, sounddevice as sd
 from hamsa_tts import TTS, HamsaSettings
 
-API_KEY = os.getenv("HAMSA_API_KEY") or "YOUR_API_KEY"
+API_KEY = os.getenv("HAMSA_API_KEY")  # expects you to export the key
 
-async def main():
-    tts = TTS(api_key=API_KEY,
-              settings=HamsaSettings(speaker="Majd", dialect="pls"))
+async def main() -> None:
+    tts = TTS(
+        api_key=API_KEY,
+        settings=HamsaSettings(speaker="Majd", dialect="pls", mulaw=False),
+    )
+
     stream = tts.synthesize("مرحباً بكم جميعاً في همسة!")
     chunks: list[bytes] = []
 
@@ -21,6 +23,7 @@ async def main():
                 wf.setnchannels(1); wf.setsampwidth(2); wf.setframerate(self.rate)
                 wf.writeframes(raw)
             print("✅ Saved hamsa_livekit.wav")
+        # unused callbacks
         def push_timed_transcript(self,*_): pass
         def start_segment(self,*_): pass
         def end_input(self): pass
@@ -30,4 +33,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-PY
